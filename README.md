@@ -261,7 +261,7 @@ However, to account for real-world variability, an error margin of 10–20% shou
 
 Thank you for taking the time to explore this repository and follow the implementation of the **Spyder Robot Overlap Analysis** project. Your interest and engagement mean a lot, and I hope you found the code, documentation, and mathematical formulations insightful and useful.
 
-If you have any feedback, suggestions, or encounter any issues, feel free to [open an issue](https://github.com/your-repo/issues) or contribute to the repository. I’d love to hear your thoughts and collaborate further!
+If you have any feedback, suggestions, or encounter any issues, feel free to open an issue or contribute to the repository. I’d love to hear your thoughts and collaborate further!
 
 Don’t forget to ⭐ star this repository if you found it helpful, and stay tuned for future updates!
 
