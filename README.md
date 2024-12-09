@@ -95,9 +95,9 @@ This project simulates robot movements in a warehouse, focusing on:
 
 ### SKU Heatmap
 The SKU demand heatmap assigns a random demand factor to each storage node:
-\[
+$$
 \text{Heatmap Factor} = \text{random.uniform}(1, 3)
-\]
+$$
 
 This factor influences travel times, simulating varying demands across storage zones.
 
@@ -107,19 +107,19 @@ This factor influences travel times, simulating varying demands across storage z
 Robot travel time is calculated based on horizontal and vertical distances, speeds, accelerations, traffic, and demand factors:
 
 - **Horizontal Time**:
-\[
+$$
 t_h = 2 \sqrt{\frac{\text{distance}_x}{2 \cdot \text{accel}_x}}
-\]
+$$
 
 - **Vertical Time**:
-\[
+$$
 t_v = 2 \sqrt{\frac{\text{distance}_z}{2 \cdot \text{accel}_z}}
-\]
+$$
 
 - **Total Travel Time**:
-\[
+$$
 t_{\text{total}} = (t_h + t_v) \cdot \text{traffic\_multiplier} \cdot \text{heatmap\_factor}
-\]
+$$
 
 ---
 
@@ -135,9 +135,9 @@ The warehouse is modeled as a **directed graph (DiGraph)**:
 
 ### Transaction Time
 The total time for a transaction includes travel times and extraction delays:
-\[
+$$
 t_{\text{transaction}} = t_{\text{to\_storage}} + t_{\text{extraction}} + t_{\text{to\_fulfillment}}
-\]
+$$
 
 Where:
 - \( t_{\text{to\_storage}} \): Time to reach the storage node.
@@ -148,26 +148,26 @@ Where:
 
 ### Cost per Transaction
 The cost of each transaction considers:
+
 1. **Energy Cost**:
-\[
+$$
 \text{Energy Cost} = \text{distance traveled} \cdot \text{energy\_consumption\_per\_meter}
-\]
+$$
 
 2. **Maintenance Cost**:
-\[
+$$
 \text{Maintenance Cost} = \text{num\_robots} \cdot \text{fixed\_maintenance\_cost}
-\]
+$$
 
 3. **System Cost**:
-\[
+$$
 \text{System Cost} = \text{Base Cost} + \text{Upgrade Cost} + \text{Energy Cost} + \text{Maintenance Cost}
-\]
+$$
 
 4. **Cost per Transaction**:
-\[
+$$
 \text{Cost per Transaction} = \frac{\text{System Cost}}{\text{Total Transactions}}
-\]
-
+$$
 ---
 
 ## Code Logic and Design
