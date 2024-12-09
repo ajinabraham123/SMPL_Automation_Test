@@ -171,6 +171,7 @@ $$
 ---
 
 ## Code Logic and Design
+###Detailed Code Logic: https://docs.google.com/document/d/1b5R7cknjQLW76Sl9WbwF-XivrzZ2Ku4-Avc3jBe_Mjw/edit?tab=t.0#heading=h.rhswl83t4ndo
 
 ### Graph Creation
 The function `create_warehouse_graph` models the warehouse:
