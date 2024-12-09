@@ -23,6 +23,64 @@ This repository contains a simulation and analysis tool to model warehouse robot
 ---
 ## Steps to run the code - https://docs.google.com/document/d/1b5R7cknjQLW76Sl9WbwF-XivrzZ2Ku4-Avc3jBe_Mjw/edit?tab=t.2997js9j91rz
 
+1. Set Up the Environment on VSCode
+1. Create a virtual environment:
+```bash
+python3 -m venv env
+```
+
+2. Activate the virtual environment:
+For macOS/Linux:
+```bash
+source env/bin/activate
+```
+
+For Windows:
+```bash
+.\env\Scripts\activate
+```
+
+
+2. Install Dependencies
+
+Install the required Python packages from `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Run the Streamlit Application
+
+Start the Streamlit app:
+```bash
+streamlit run Spyder_Robo_Streamlit.py
+```
+
+*Open your browser and navigate to:
+```bash
+http://localhost:8501
+```
+
+Run Using Docker
+1. Build the Docker Image
+Ensure Docker is installed and running on your machine.
+Build the Docker image:
+```bash
+docker build -t smpl_automation_test .
+```
+
+2. Run the Docker Container
+Start the Docker container:
+```bash
+docker run -p 8501:8501 smpl_automation_test
+```
+
+*Access the application in your browser at:
+```bash
+http://localhost:8501
+```
+
+
 ## Overview
 
 This project simulates robot movements in a warehouse, focusing on:
