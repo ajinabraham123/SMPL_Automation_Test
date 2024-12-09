@@ -1,43 +1,199 @@
-# SMPL_Automation_Test
+# Spyder Robot Overlap Analysis
 
-Addressing the Leading Questions
-1. How does the topology of the system impact the metric?
-Findings:
+This repository contains a simulation and analysis tool to model warehouse robot movements, analyze overlaps, and optimize transactions. It uses **Streamlit** for interactive visualization, **NetworkX** for graph-based pathfinding, and **Plotly** for data visualization.
 
-Longer aisles (higher X distance) and taller racks (higher Z distance) result in increased travel time, which directly impacts the average transaction time and cost per transaction.
-More levels and aisles also increase the time robots spend navigating to storage nodes, increasing delays.
-However, adding more robots or increasing speed reduces queuing delays, mitigating the impact of complex topology.
-Conclusion: The system topology significantly impacts cost per transaction. Higher complexity requires either faster robots or additional robots to maintain efficiency.
+---
 
-2. Is the metric driven purely by mechanical constraints, or will logical constraints impact it?
-Findings:
+## Table of Contents
+1. [Steps to run the code](#steps)
+1. [Overview](#overview)
+2. [Mathematical Formulations](#mathematical-formulations)
+    - [SKU Heatmap](#sku-heatmap)
+    - [Travel Time Calculation](#travel-time-calculation)
+    - [Warehouse Graph Representation](#warehouse-graph-representation)
+    - [Transaction Time](#transaction-time)
+    - [Cost per Transaction](#cost-per-transaction)
+3. [Code Logic and Design](#code-logic-and-design)
+    - [Graph Creation](#graph-creation)
+    - [Simulation Workflow](#simulation-workflow)
+    - [Overlap Analysis](#overlap-analysis)
+4. [Visualizations](#visualizations)
+5. [Usage Instructions](#usage-instructions)
 
-Mechanical constraints (speed, acceleration, aisle length, and level height) dominate the cost per transaction.
-Logical constraints, such as robot queueing delays and the number of robots available, also influence the metric. If logical constraints are not addressed, queuing can lead to bottlenecks, regardless of mechanical improvements.
-Conclusion: Both mechanical and logical constraints play crucial roles. Logical constraints, such as efficient robot scheduling, can become a bottleneck even with faster robots.
+---
+## Steps to run the code - https://docs.google.com/document/d/1b5R7cknjQLW76Sl9WbwF-XivrzZ2Ku4-Avc3jBe_Mjw/edit?tab=t.2997js9j91rz
 
-3. How sensitive are we to assumptions about the customer's operation?
-Findings:
+## Overview
 
-Assumptions like transaction rates (workload rates) heavily influence cost per transaction. High workloads expose bottlenecks in both speed and queuing delays.
-Sensitivity to extraction time upgrades depends on workload levels. At high workloads, reducing extraction time significantly lowers costs.
-Conclusion: The model is moderately sensitive to operational assumptions. Transaction volume and required throughput are critical variables.
+This project simulates robot movements in a warehouse, focusing on:
+- Minimizing overlaps and delays.
+- Optimizing robot paths.
+- Visualizing demand heatmaps and robot tracking.
+- Providing key business metrics such as transaction cost, throughput, and overlaps.
 
-4. Can this model become a sizing tool for future opportunities? What amount of error should we assume?
-Findings:
+---
 
-The dynamic workload simulation and configurability make this model highly scalable as a sizing tool for different warehouse setups.
-Error margins could stem from the assumptions on robot behavior, queuing dynamics, and uniform workload distributions.
-A 5-10% error margin is reasonable, accounting for variability in real-world conditions.
-Conclusion: This model can serve as a sizing tool, with error margins depending on how accurately customer-specific constraints are captured.
+## Mathematical Formulations
+
+### SKU Heatmap
+The SKU demand heatmap assigns a random demand factor to each storage node:
+\[
+\text{Heatmap Factor} = \text{random.uniform}(1, 3)
+\]
+
+This factor influences travel times, simulating varying demands across storage zones.
+
+---
+
+### Travel Time Calculation
+Robot travel time is calculated based on horizontal and vertical distances, speeds, accelerations, traffic, and demand factors:
+
+- **Horizontal Time**:
+\[
+t_h = 2 \sqrt{\frac{\text{distance}_x}{2 \cdot \text{accel}_x}}
+\]
+
+- **Vertical Time**:
+\[
+t_v = 2 \sqrt{\frac{\text{distance}_z}{2 \cdot \text{accel}_z}}
+\]
+
+- **Total Travel Time**:
+\[
+t_{\text{total}} = (t_h + t_v) \cdot \text{traffic\_multiplier} \cdot \text{heatmap\_factor}
+\]
+
+---
+
+### Warehouse Graph Representation
+The warehouse is modeled as a **directed graph (DiGraph)**:
+- **Nodes**: Represent storage locations and a "Fulfillment Zone".
+- **Edges**:
+  - Vertical movement (within aisles).
+  - Horizontal movement (at the first or last levels).
+  - Connections to the "Fulfillment Zone".
+
+---
+
+### Transaction Time
+The total time for a transaction includes travel times and extraction delays:
+\[
+t_{\text{transaction}} = t_{\text{to\_storage}} + t_{\text{extraction}} + t_{\text{to\_fulfillment}}
+\]
+
+Where:
+- \( t_{\text{to\_storage}} \): Time to reach the storage node.
+- \( t_{\text{extraction}} \): Time to extract an item.
+- \( t_{\text{to\_fulfillment}} \): Time to return to the fulfillment zone.
+
+---
+
+### Cost per Transaction
+The cost of each transaction considers:
+1. **Energy Cost**:
+\[
+\text{Energy Cost} = \text{distance traveled} \cdot \text{energy\_consumption\_per\_meter}
+\]
+
+2. **Maintenance Cost**:
+\[
+\text{Maintenance Cost} = \text{num\_robots} \cdot \text{fixed\_maintenance\_cost}
+\]
+
+3. **System Cost**:
+\[
+\text{System Cost} = \text{Base Cost} + \text{Upgrade Cost} + \text{Energy Cost} + \text{Maintenance Cost}
+\]
+
+4. **Cost per Transaction**:
+\[
+\text{Cost per Transaction} = \frac{\text{System Cost}}{\text{Total Transactions}}
+\]
+
+---
+
+## Code Logic and Design
+
+### Graph Creation
+The function `create_warehouse_graph` models the warehouse:
+- Adds nodes for storage locations.
+- Creates directed edges for robot movement rules:
+  - Vertical edges between levels within aisles.
+  - Horizontal edges only at specific levels (first or last).
+  - Links to the "Fulfillment Zone".
+
+### Simulation Workflow
+The `simulate_transactions_with_tracking` function performs:
+1. **Transaction Assignment**:
+    - Assigns robots to tasks using a round-robin method.
+2. **Pathfinding**:
+    - Calculates paths to storage nodes and back to the fulfillment zone using NetworkX.
+3. **Validation**:
+    - Ensures paths adhere to movement rules (no diagonal or invalid moves).
+4. **Metrics Calculation**:
+    - Tracks overlaps, delays, and transaction times.
+
+### Overlap Analysis
+The function `analyze_robot_overlaps` calculates:
+- **Total Overlaps**: Instances of robots accessing the same storage node.
+- **Total Delay**: Time penalties due to overlaps.
+- **Average Delay**: Mean delay per overlap.
+
+---
+
+## Visualizations
+
+1. **SKU Demand Heatmap**:
+    - Displays the demand factors across aisles and levels using a stacked bar chart.
+
+2. **Robot Tracking**:
+    - Visualizes robot paths from storage nodes to the fulfillment zone.
+    - Highlights invalid movements or pathfinding issues.
+
+3. **Overlap Metrics**:
+    - Summarizes overlaps, delays, and costs per aisle.
+
+---
+
+## Usage Instructions
+
+### Prerequisites
+Install the required packages:
+```bash
+pip install streamlit pandas networkx plotly
+```
 
 
-Reference Materials used:
-1) chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://annals.fih.upt.ro/pdf-full/2013/ANNALS-2013-1-26.pdf
-2) Multi-Robot Routing with Time Windows: A Column Generation Approach
-Naveed Haghani, Jiaoyang Li, Sven Koenig, Gautam Kunapuli, Claudio Contardo, Amelia Regan, Julian Yarkony
 
-plotly urls: 
-https://plotly.com/python/line-and-scatter/
-https://docs.streamlit.io/develop/api-reference/charts/st.plotly_chart
-https://plotly.com/python/colorscales/
+# Analysis Based on Code and Questions
+
+## How does the topology of the system impact our metric?
+
+The topology of the system, defined by the number of aisles, levels, and the distances between nodes, significantly impacts metrics like transaction time, overlaps, and cost per transaction. For instance, increasing the number of aisles or levels introduces more nodes and potential pathways, which can either reduce or increase transaction times based on the demand heatmap and traffic multiplier.
+
+The constraints, such as movement only at certain levels or avoiding diagonal movement, further shape how efficiently robots can traverse the warehouse. This is visible in the robot tracking visualizations where certain paths are densely interconnected, leading to potential overlaps.
+
+---
+
+## Is the metric driven purely by mechanical constraints, or will logical constraints impact it?
+
+While mechanical constraints such as robot speed, acceleration, and extraction time are core factors in calculating metrics, logical constraints such as path validation (no diagonal movements), prioritization of orders, and batching logic significantly influence the overall performance. Logical constraints ensure the feasibility of routes and adherence to warehouse-specific rules, impacting metrics like transaction time and overlaps.
+
+The heatmap introduces a demand-based logical adjustment that further modifies travel times, showing a direct dependency on logical constraints.
+
+---
+
+## How sensitive are we to assumptions about the customer's operation?
+
+The model is sensitive to assumptions such as uniform traffic multipliers, extraction times, and demand heatmap factors. Any deviation in customer operations, such as uneven distribution of demand or peak operational hours, could lead to inaccuracies in transaction time and cost per transaction estimates.
+
+For example, increasing the traffic multiplier dynamically affects the transaction time, as visible in the dashboards. Adjusting assumptions (e.g., higher demands on specific aisles) can lead to localized congestion, further impacting overlaps and delays.
+
+---
+
+## Do you think we could turn this model into a sizing tool for future opportunities? What amount of error should we assume?
+
+The model has the potential to act as a sizing tool, allowing stakeholders to simulate different warehouse configurations and robot parameters to estimate costs and efficiency metrics. By adjusting inputs such as the number of aisles, levels, and robot speed, it can provide actionable insights for scaling operations.
+
+However, to account for real-world variability, an error margin of 10–20% should be assumed. This margin would cover factors like unexpected delays, machine downtimes, and deviations from the assumed demand distribution in the heatmap.
+
