@@ -1,0 +1,30 @@
+# Python-related files
+*.pyc
+__pycache__/
+
+# Virtual environment
+.env/
+
+# Streamlit cache
+.streamlit/
+
+# Logs
+*.log
+
+# Docker-related files
+*.dockerignore
+.docker/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Git-specific files
+.git/
+
+# Other unnecessary files
+*.tmp
